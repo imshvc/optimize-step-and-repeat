@@ -1,7 +1,7 @@
 // Authors: Nurudin Imsirovic <realnurudinimsirovic@gmail.com>
 // Purpose: Determine the best "Step and Repeat" combination for Adobe InDesign
 // Created: 2024-09-25 09:04 PM
-// Updated: 2024-09-26 02:33 AM
+// Updated: 2024-09-26 02:40 AM
 
 var results = {};
 
@@ -173,7 +173,7 @@ function generateDocumentPreview(result, identifier = null) {
     </div>
   </div>
 
-  <p>!itemCount!<br>items</p>
+  <p><b>Rows:</b> !rowCount!<br><b>Columns:</b> !columnCount!<br><b>Items:</b> !itemCount!</p>
 </fieldset>
 `;
 
@@ -185,6 +185,8 @@ function generateDocumentPreview(result, identifier = null) {
   templateHTML = templateHTML.replace(/\!itemHeight\!/g, Math.floor(result.itemHeight * 0.25));
   templateHTML = templateHTML.replace(/\!maxColumns\!/g, result.maxColumns);
   templateHTML = templateHTML.replace(/\!itemCount\!/g, result.maxRows * result.maxColumns);
+  templateHTML = templateHTML.replace(/\!rowCount\!/g, result.maxRows);
+  templateHTML = templateHTML.replace(/\!columnCount\!/g, result.maxColumns);
 
   // Get half difference
   let translateMarginX = result.documentWidth - (result.maxColumns * result.itemWidth);
@@ -343,7 +345,7 @@ function inputClickEvent(inputElement) {
 // Event listener for enter keys on inputs
 function inputEnterEvent(inputElement) {
   inputElement.addEventListener('keyup', function(e) {
-    if (e.key !== 'Enter' && e.keyCode !== 9) {
+    if (e.key !== 'Enter') {
       return;
     }
 
