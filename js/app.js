@@ -1,7 +1,7 @@
 // Authors: Nurudin Imsirovic <realnurudinimsirovic@gmail.com>
 // Purpose: Determine the best "Step and Repeat" combination for Adobe InDesign
 // Created: 2024-09-25 09:04 PM
-// Updated: 2024-09-26 02:18 AM
+// Updated: 2024-09-26 02:24 AM
 
 var results = {};
 
@@ -438,35 +438,6 @@ function commitChanges() {
   state.documentMargin = parseFloat(elements.documentMarginInput.value);
   state.itemWidth = parseFloat(elements.itemWidthInput.value);
   state.itemHeight = parseFloat(elements.itemHeightInput.value);
-
-  try {
-    let e = {
-      key: 'Enter'
-    };
-
-    e.target = elements.documentWidthInput;
-    inputMathExpressionEvaluation(e);
-
-    e.target = elements.documentHeightInput;
-    inputMathExpressionEvaluation(e);
-
-    e.target = elements.documentMarginInput;
-    inputMathExpressionEvaluation(e);
-
-    e.target = elements.itemWidthInput;
-    inputMathExpressionEvaluation(e);
-
-    e.target = elements.itemHeightInput;
-    inputMathExpressionEvaluation(e);
-
-    //elements.documentWidthInput.value = state.documentWidth + ' ' + currentUnit;
-    //elements.documentHeightInput.value = state.documentHeight + ' ' + currentUnit;
-    //elements.documentMarginInput.value = state.documentMargin + ' ' + currentUnit;
-    //elements.itemWidthInput.value = state.itemWidth + ' ' + currentUnit;
-    //elements.itemHeightInput.value = state.itemHeight + ' ' + currentUnit;
-  } catch(x) {
-    // do nothing.
-  }
 
   let docWidth = state.documentWidth;
   let docHeight = state.documentHeight;
