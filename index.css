@@ -1,0 +1,88 @@
+header {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+header h1 {
+  margin: 0 auto !important;
+}
+
+.controls-fieldset fieldset {
+  width: calc(50% - 4px);
+  float: left;
+  margin-top: 10px;
+}
+
+.controls-fieldset fieldset input {
+  width: 100%;
+}
+
+.controls-fieldset fieldset button {
+  float: right;
+}
+
+.controls-fieldset .div {
+  width: 100%;
+  float: left;
+}
+
+.controls-fieldset label {
+  font-weight: bold;
+}
+
+.results-text {
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+
+.doc-preview {
+  width: var(--documentWidth);
+  height: var(--documentHeight);
+  background-color: #FFF;
+  overflow: hidden;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.doc-margin {
+  border-style: solid;
+  border-width: 1px;
+  border-top-color: #F0F;
+  border-bottom-color: #F0F;
+  border-left-color: #00F;
+  border-right-color: #00F;
+  width: calc(var(--documentWidth) - calc(var(--documentMargin) * 2));
+  height: calc(var(--documentHeight) - calc(var(--documentMargin) * 2));
+  margin-top: var(--documentMargin);
+  margin-left: var(--documentMargin);
+  float: left;
+}
+
+.doc-item {
+  width: var(--itemWidth);
+  height: var(--itemHeight);
+  float: left;
+  border: 1px solid #099;
+  box-sizing: border-box;
+  border-collapse: collapse;
+
+  translate: var(--translateMarginX) var(--translateMarginY);
+}
+
+.doc-item:not(:first) {
+  background: blue;
+}
+
+.doc-item:hover {
+  background: #0AA;
+}
+
+.doc-preview-gen {
+  text-align: center;
+  padding-bottom: 0;
+}
+
+.doc-preview-gen p {
+  line-height: 1.7ch;
+}

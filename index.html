@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="IE=edge">
+  <title>Optimize Step and Repeat</title>
+  <link rel="stylesheet" type="text/css" href="/css/dist/simple.css/simple-2.3.2.css">
+  <link rel="stylesheet" type="text/css" href="index.css">
+  <link rel="shortcut icon" href="/favicon.ico">
+
+  <!-- Open Graph -->
+  <meta property="og:author" content="Nurudin Imširović">
+  <meta property="og:title" content="Optimize Step and Repeat">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://imshvc.github.io/optimize-step-and-repeat/index.html">
+  <meta property="og:image" content="https://imshvc.github.io/optimize-step-and-repeat/images/web-thumb.jpg">
+  <meta property="og:description" content="by Nurudin Imširović">
+</head>
+<body>
+  <header>
+    <nav>
+
+    <h1>Optimize Step and Repeat</h1>
+    <p>by <a href="https://imshvc.github.io/" target="_blank" tabindex="-1">Nurudin Imširović</a> &hyphen; <a href="https://github.com/imshvc/optimize-step-and-repeat" target="_blank" tabindex="-1">Source Code</a></p>
+  </header>
+
+  <div class="controls-fieldset">
+
+    <!-- Document fieldset -->
+    <fieldset class="for-document">
+      <legend>Document</legend>
+
+      <div class="div">
+        <label for="documentWidth">Width</label>
+        <input type="text" name="documentWidth" id="documentWidth" value="330 mm">
+
+        <label for="documentHeight">Height</label>
+        <input type="text" name="documentHeight" id="documentHeight" value="488 mm">
+
+        <br>
+
+        <button class="swapValuesDocument" tabindex="-1">Swap values</button>
+      </div>
+
+      <div class="div">
+        <label for="documentMargin">Margin</label>
+        <input type="text" name="documentMargin" id="documentMargin" value="12.7 mm">
+      </div>
+    </fieldset>
+
+    <!-- Item fieldset -->
+    <fieldset class="for-item">
+      <legend>Item</legend>
+
+      <label for="itemWidth">Width</label>
+      <input type="text" name="itemWidth" id="itemWidth" value="90 mm">
+
+      <label for="itemHeight">Height</label>
+      <input type="text" name="itemHeight" id="itemHeight" value="50 mm">
+
+      <br>
+
+      <button class="swapValuesItem" tabindex="-1">Swap values</button>
+    </fieldset>
+
+  </div>
+
+  <p class="results-text">Results</p>
+  <div class="results"></div>
+
+  <script type="text/javascript" src="js/app.js" defer></script>
+</body>
+</html>
