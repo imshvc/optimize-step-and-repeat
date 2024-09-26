@@ -1,7 +1,7 @@
 // Authors: Nurudin Imsirovic <realnurudinimsirovic@gmail.com>
 // Purpose: Determine the best "Step and Repeat" combination for Adobe InDesign
 // Created: 2024-09-25 09:04 PM
-// Updated: 2024-09-26 02:24 AM
+// Updated: 2024-09-26 02:33 AM
 
 var results = {};
 
@@ -496,8 +496,13 @@ function commitChanges() {
 
   // Generate document previews
   clearDocumentPreview();
-  generateDocumentPreview(results.portrait, 'portrait');
-  generateDocumentPreview(results.landscape, 'landscape');
+
+  // Only render a single best preview, no need for multiple.
+  if ((results.portrait.maxRows * results.portrait.maxColumns) > (results.landscape.maxRows * results.landscape.maxColumns)) {
+    generateDocumentPreview(results.portrait, 'portrait');
+  } else {
+    generateDocumentPreview(results.landscape, 'landscape');
+  }
 }
 
 // TODO: Commit changes on tab index change
