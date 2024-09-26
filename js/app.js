@@ -1,7 +1,7 @@
 // Authors: Nurudin Imsirovic <realnurudinimsirovic@gmail.com>
 // Purpose: Determine the best "Step and Repeat" combination for Adobe InDesign
 // Created: 2024-09-25 09:04 PM
-// Updated: 2024-09-26 02:40 AM
+// Updated: 2024-09-26 07:29 AM
 
 var results = {};
 
@@ -102,7 +102,7 @@ function optimizeStepAndRepeat(props = {}) {
     if (0 >= props.documentWidth) {
       throw new Error('Too much margin; document width below zero (0)');
     }
-    
+
     if (0 >= props.documentHeight) {
       throw new Error('Too much margin; document height below zero (0)');
     }
@@ -126,7 +126,7 @@ function optimizeStepAndRepeat(props = {}) {
   // Determine rows
   for (let i = 0, accum = 0; i <= props.documentHeight;) {
     // Item out of bounds
-    if (accum + props.itemHeight >= props.documentHeight) {
+    if (accum + props.itemHeight > props.documentHeight) {
       break;
     }
 
@@ -274,7 +274,7 @@ function filterString(input, set = '', keep = true) {
         buffer += character;
       }
     }
-    
+
     ++currentIndex;
   }
 
