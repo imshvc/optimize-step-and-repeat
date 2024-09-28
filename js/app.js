@@ -1,7 +1,7 @@
 // Authors: Nurudin Imsirovic <realnurudinimsirovic@gmail.com>
 // Purpose: Determine the best "Step and Repeat" combination for Adobe InDesign
 // Created: 2024-09-25 09:04 PM
-// Updated: 2024-09-26 07:29 AM
+// Updated: 2024-09-28 03:15 AM
 
 var results = {};
 
@@ -21,7 +21,8 @@ var elements = {
   itemWidthInput: document.querySelector('input#itemWidth'),
   itemHeightInput: document.querySelector('input#itemHeight'),
 
-  results: document.querySelector('div.results')
+  results: document.querySelector('div.results'),
+  resultsText: document.querySelector('p.results-text')
 };
 
 var state = {
@@ -30,7 +31,9 @@ var state = {
   documentHeight: 488,
   documentMargin: 12.7,
   itemWidth: 90,
-  itemHeight: 50
+  itemHeight: 50,
+
+  scrollToResult: true
 };
 
 // Equalize fieldset heights
@@ -154,13 +157,34 @@ function generateDocumentPreview(result, identifier = null) {
 <fieldset class="doc-preview-gen">
   <legend>!docIdentifier!</legend>
 
+  <table>
+    <tbody>
+      <tr>
+        <td>Rows</td>
+        <td>!rowCount!</td>
+      </tr>
+      <tr>
+        <td>Columns</td>
+        <td>!columnCount!</td>
+      </tr>
+      <tr>
+        <td>Items</td>
+        <td>!itemCount!</td>
+      </tr>
+    </tbody>
+  </table>
+
   <style>
     .doc-preview-!docIdentifier! {
       --documentWidth: !documentWidth!px;
       --documentHeight: !documentHeight!px;
       --documentMargin: !documentMargin!px;
+
       --itemWidth: !itemWidth!px;
       --itemHeight: !itemHeight!px;
+
+      --itemX: !itemX!px;
+      --itemY: !itemY!px;
 
       --translateMarginX: !translateMarginX!px;
       --translateMarginY: !translateMarginY!px;
@@ -172,17 +196,15 @@ function generateDocumentPreview(result, identifier = null) {
       !docItems!
     </div>
   </div>
-
-  <p><b>Rows:</b> !rowCount!<br><b>Columns:</b> !columnCount!<br><b>Items:</b> !itemCount!</p>
 </fieldset>
 `;
 
   templateHTML = templateHTML.replace(/\!docIdentifier\!/g, identifier);
-  templateHTML = templateHTML.replace(/\!documentWidth\!/g, Math.floor(result.documentWidthReal * 0.25));
-  templateHTML = templateHTML.replace(/\!documentHeight\!/g, Math.floor(result.documentHeightReal * 0.25));
-  templateHTML = templateHTML.replace(/\!documentMargin\!/g, Math.floor(result.documentMargin * 0.25));
-  templateHTML = templateHTML.replace(/\!itemWidth\!/g, Math.floor(result.itemWidth * 0.25));
-  templateHTML = templateHTML.replace(/\!itemHeight\!/g, Math.floor(result.itemHeight * 0.25));
+  templateHTML = templateHTML.replace(/\!documentWidth\!/g, Math.floor(millimeterToPixel(result.documentWidthReal)));
+  templateHTML = templateHTML.replace(/\!documentHeight\!/g, Math.floor(millimeterToPixel(result.documentHeightReal)));
+  templateHTML = templateHTML.replace(/\!documentMargin\!/g, Math.floor(millimeterToPixel(result.documentMargin)));
+  templateHTML = templateHTML.replace(/\!itemWidth\!/g, Math.floor(millimeterToPixel(result.itemWidth)));
+  templateHTML = templateHTML.replace(/\!itemHeight\!/g, Math.floor(millimeterToPixel(result.itemHeight)));
   templateHTML = templateHTML.replace(/\!maxColumns\!/g, result.maxColumns);
   templateHTML = templateHTML.replace(/\!itemCount\!/g, result.maxRows * result.maxColumns);
   templateHTML = templateHTML.replace(/\!rowCount\!/g, result.maxRows);
@@ -196,14 +218,33 @@ function generateDocumentPreview(result, identifier = null) {
 
   let itemsHTML = '';
 
-  for (let i = 0, j = result.maxRows * result.maxColumns; i < j; i++) {
-    itemsHTML += '<div class="doc-item"></div>';
+  let itemsCount = result.maxRows * result.maxColumns;
+
+  if (itemsCount > 300) {
+    templateHTML = templateHTML.substr(0, templateHTML.length - 130) + '<center>Too many items to render.</center><br></fieldset>';
+  } else {
+    let offsetLeft = 0;
+    let offsetLeftIncrement = Math.floor(millimeterToPixel(result.itemWidth));
+
+    let offsetTop = 0;
+    let offsetTopIncrement = Math.floor(millimeterToPixel(result.itemHeight));
+
+    for (let i = 0; i < itemsCount; i++) {
+      // break line
+      if (i !== 0 && i % result.maxColumns == 0) {
+        offsetLeft = 0;
+        offsetTop += offsetTopIncrement;
+      }
+
+      itemsHTML += `<div class="doc-item" style="--itemX:${offsetLeft}px;--itemY:${offsetTop}px;"></div>`;
+      offsetLeft += offsetLeftIncrement;
+    }
+
+    templateHTML = templateHTML.replace(/\!docItems\!/g, itemsHTML);
   }
 
-  templateHTML = templateHTML.replace(/\!docItems\!/g, itemsHTML);
-
   elements.results.innerHTML += templateHTML;
-  results[identifier].reference = elements.results.querySelector(`doc-preview-${identifier}`);
+  results[identifier].reference = elements.results.querySelector(`.doc-preview-${identifier}`);
 }
 
 // Utility function for swapping values
@@ -227,8 +268,8 @@ function swapValues(widthInput, heightInput) {
 
   // Swap values client-side
   [widthInput.value, heightInput.value] = [
-    docHeight + ' mm',
-    docWidth + ' mm'
+    docHeight + ' ' + currentUnit,
+    docWidth + ' ' + currentUnit
   ];
 
   // Swap values in state
@@ -362,8 +403,36 @@ function inputEnterEvent(inputElement) {
 }
 
 // Event handler for input enters
-function inputMathExpressionEvaluation(event) {
+//
+// Extras may include:
+//   useAlert = true
+//   useThrow = true
+//   restoreOriginalValue = true
+function inputMathExpressionEvaluation(event, extra = {}) {
   let target = event.target;
+
+  let useAlert = extra?.useAlert;
+  let useThrow = extra?.useThrow;
+  let restoreOriginalValue = extra?.restoreOriginalValue;
+
+  // Special case for margin inputs. Allow zero.
+  if (event.target.id === 'documentMargin') {
+    useAlert = false;
+    useThrow = false;
+    restoreOriginalValue = true;
+  }
+
+  if (useAlert === undefined) {
+    useAlert = true;
+  }
+
+  if (useThrow === undefined) {
+    useThrow = true;
+  }
+
+  if (restoreOriginalValue === undefined) {
+    restoreOriginalValue = true;
+  }
 
   // Discard non-input elements
   if (target instanceof HTMLInputElement === false) {
@@ -384,30 +453,58 @@ function inputMathExpressionEvaluation(event) {
     evaluated = mathExpressionEvaluator(currentValue);
 
     if (evaluated == 'Infinity') {
-      throw new Error('Infinity value');
+      if (useThrow) {
+        throw new Error('Infinity value');
+      } else {
+        evaluated = 0;
+      }
     }
 
     if (isNaN(evaluated)) {
-      throw new Error('NaN value');
+      if (useThrow) {
+        throw new Error('NaN value');
+      } else {
+        evaluated = 0;
+      }
     }
 
     if (typeof evaluated === 'undefined') {
-      throw new Error('undefined');
+      if (useThrow) {
+        throw new Error('undefined');
+      } else {
+        evaluated = 0;
+      }
     }
 
     if (0 >= evaluated) {
-      throw new Error('Negative or zero values not allowed');
+      if (useThrow) {
+        throw new Error('Negative or zero values not allowed');
+      } else {
+        evaluated = 0;
+      }
     }
 
     evaluated += ' ' + currentUnit;
   } catch (e) {
-    alert('Math Expression Error:\n\n' + e.message);
+    if (useAlert) {
+      alert('Math Expression Error:\n\n' + e.message);
+    }
 
     // Revert original value and select all text
-    target.value = originalValue;
-    document.activeElement?.setSelectionRange(0, 9999);
+    if (restoreOriginalValue) {
+      target.value = originalValue;
+      document.activeElement?.setSelectionRange(0, 9999);
+    }
 
     return;
+  }
+
+  if (target.id === 'documentMargin') {
+    if (evaluated == '0 ' + currentUnit) {
+      document.body.setAttribute('class', 'noPreviewMargin');
+    } else {
+      document.body.setAttribute('class', '');
+    }
   }
 
   target.value = evaluated;
@@ -433,7 +530,7 @@ assignInputEvents(
 // Commit the changes made to controls,
 // and recalculate everything, with the
 // results.
-function commitChanges() {
+function commitChanges(useScroll = true) {
   // Update state
   state.documentWidth = parseFloat(elements.documentWidthInput.value);
   state.documentHeight = parseFloat(elements.documentHeightInput.value);
@@ -450,13 +547,19 @@ function commitChanges() {
   // TODO: We need margin of error, what if the dimensions is 300x301
   //       this would equate to 'portrait' mode, and vice-versa.
   if (isDocumentSquare) {
-    results.square = optimizeStepAndRepeat({
-      documentWidth: docWidth,
-      documentHeight: docHeight,
-      documentMargin: state.documentMargin,
-      itemWidth: state.itemWidth,
-      itemHeight: state.itemHeight,
-    });
+    try {
+      results.square = optimizeStepAndRepeat({
+        documentWidth: docWidth,
+        documentHeight: docHeight,
+        documentMargin: state.documentMargin,
+        itemWidth: state.itemWidth,
+        itemHeight: state.itemHeight,
+      });
+    } catch(e) {
+      alert(`Optimization Error:\n\n${e.message}`);
+      clearDocumentPreview();
+      return;
+    }
 
     // Generate document previews
     clearDocumentPreview();
@@ -480,34 +583,48 @@ function commitChanges() {
     highest = docHeight;
   }
 
-  results.landscape = optimizeStepAndRepeat({
-    documentWidth: highest,
-    documentHeight: lowest,
-    documentMargin: state.documentMargin,
-    itemWidth: state.itemWidth,
-    itemHeight: state.itemHeight,
-  });
+  try {
+    results.landscape = optimizeStepAndRepeat({
+      documentWidth: highest,
+      documentHeight: lowest,
+      documentMargin: state.documentMargin,
+      itemWidth: state.itemWidth,
+      itemHeight: state.itemHeight,
+    });
 
-  results.portrait = optimizeStepAndRepeat({
-    documentWidth: lowest,
-    documentHeight: highest,
-    documentMargin: state.documentMargin,
-    itemWidth: state.itemWidth,
-    itemHeight: state.itemHeight,
-  });
+    results.portrait = optimizeStepAndRepeat({
+      documentWidth: lowest,
+      documentHeight: highest,
+      documentMargin: state.documentMargin,
+      itemWidth: state.itemWidth,
+      itemHeight: state.itemHeight,
+    });
+  } catch(e) {
+    alert(`Optimization Error:\n\n${e.message}`);
+    clearDocumentPreview();
+    return;
+  }
 
   // Generate document previews
   clearDocumentPreview();
 
   // Only render a single best preview, no need for multiple.
-  if ((results.portrait.maxRows * results.portrait.maxColumns) > (results.landscape.maxRows * results.landscape.maxColumns)) {
+  let portraitItemsCount = (results.portrait.maxRows * results.portrait.maxColumns);
+  let landscapeItemsCount = (results.landscape.maxRows * results.landscape.maxColumns);
+
+  if (portraitItemsCount > landscapeItemsCount) {
     generateDocumentPreview(results.portrait, 'portrait');
   } else {
     generateDocumentPreview(results.landscape, 'landscape');
+  }
+
+  // Scroll to the results
+  if (useScroll && state.scrollToResult) {
+    window.scrollTo(0, elements.results.scrollHeight + elements.results.clientHeight);
   }
 }
 
 // TODO: Commit changes on tab index change
 
 // Generate preview on page load
-commitChanges();
+commitChanges(false);
