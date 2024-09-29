@@ -1,7 +1,7 @@
 // Authors: Nurudin Imsirovic <realnurudinimsirovic@gmail.com>
 // Purpose: Determine the best "Step and Repeat" combination for Adobe InDesign
 // Created: 2024-09-25 09:04 PM
-// Updated: 2024-09-28 03:15 AM
+// Updated: 2024-09-29 08:03 AM
 
 var results = {};
 
@@ -220,7 +220,7 @@ function generateDocumentPreview(result, identifier = null) {
 
   let itemsCount = result.maxRows * result.maxColumns;
 
-  if (itemsCount > 300) {
+  if (itemsCount > 200) {
     templateHTML = templateHTML.substr(0, templateHTML.length - 130) + '<center>Too many items to render.</center><br></fieldset>';
   } else {
     let offsetLeft = 0;
