@@ -1,7 +1,7 @@
 // Authors: Nurudin Imsirovic <realnurudinimsirovic@gmail.com>
 // Purpose: Determine the best "Step and Repeat" combination for Adobe InDesign
 // Created: 2024-09-25 09:04 PM
-// Updated: 2024-09-29 08:03 AM
+// Updated: 2024-10-02 05:46 AM
 
 var results = {};
 
@@ -249,33 +249,45 @@ function generateDocumentPreview(result, identifier = null) {
 
 // Utility function for swapping values
 function swapValues(widthInput, heightInput) {
-  let docWidth = parseFloat(widthInput.value).toFixed(2);
-  let docHeight = parseFloat(heightInput.value).toFixed(2);
+  let width = parseFloat(widthInput.value).toFixed(2);
+  let height = parseFloat(heightInput.value).toFixed(2);
+
+  if (isNaN(width)) {
+    let err = 'Width is not a number.'
+    alert(err);
+    throw new Error(err);
+  }
+
+  if (isNaN(height)) {
+    let err = 'Height is not a number.'
+    alert(err);
+    throw new Error(err);
+  }
 
   // No swap required
-  if (docWidth === docHeight) {
+  if (width === height) {
     return;
   }
 
   // Truncate decimal places if they're zero
-  if (docWidth.split('.', 2)[1] === '00') {
-    docWidth |= 0;
+  if (width.split('.', 2)[1] === '00') {
+    width |= 0;
   }
 
-  if (docHeight.split('.', 2)[1] === '00') {
-    docHeight |= 0;
+  if (height.split('.', 2)[1] === '00') {
+    height |= 0;
   }
 
   // Swap values client-side
   [widthInput.value, heightInput.value] = [
-    docHeight + ' ' + currentUnit,
-    docWidth + ' ' + currentUnit
+    height + ' ' + currentUnit,
+    width + ' ' + currentUnit
   ];
 
   // Swap values in state
   [state.documentWidth, state.documentHeight] = [
-    docHeight,
-    docWidth
+    height,
+    width
   ];
 
   commitChanges();
