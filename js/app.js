@@ -1,13 +1,14 @@
 // Authors: Nurudin Imsirovic <realnurudinimsirovic@gmail.com>
 // Purpose: Determine the best "Step and Repeat" combination for Adobe InDesign
 // Created: 2024-09-25 09:04 PM
-// Updated: 2024-10-02 05:46 AM
+// Updated: 2024-10-02 07:01 PM
 
 var results = {};
 
 // Default selected unit.
 var currentUnit = 'mm';
 
+// Elements
 var elements = {
   controlsDocument: document.querySelector('.controls-fieldset .for-document'),
   controlsItem: document.querySelector('.controls-fieldset .for-item'),
@@ -25,6 +26,7 @@ var elements = {
   resultsText: document.querySelector('p.results-text')
 };
 
+// State for the lifecycle of the tab
 var state = {
   // Default control values (in mm)
   documentWidth: 330,
@@ -44,26 +46,6 @@ var state = {
   elements.controlsDocument.style.height = highest;
   elements.controlsItem.style.height = highest;
 })();
-
-// Low-level: Multiplication is faster
-//
-// Formulas expressed as: <units> x <pixels>
-var supportedUnits = {
-  // millimeter
-  mm: 3.779527,
-
-  // centimeter
-  cm: 37.795275,
-
-  // point
-  pt: 1.333,
-
-  // printer's - Source: https://www.unitconverters.net/typography/pica-printer-s-to-pixel-x.htm
-  pica: 15.940224,
-
-  // pixel
-  px: 1
-};
 
 // Dimensions are usually expressed in millimetres (mm)
 // but some internal code handles this translation automatically
@@ -253,15 +235,11 @@ function swapValues(widthInput, heightInput) {
   let height = parseFloat(heightInput.value).toFixed(2);
 
   if (isNaN(width)) {
-    let err = 'Width is not a number.'
-    alert(err);
-    throw new Error(err);
+    throw new Error('Width is not a number.');
   }
 
   if (isNaN(height)) {
-    let err = 'Height is not a number.'
-    alert(err);
-    throw new Error(err);
+    throw new Error('Height is not a number.');
   }
 
   // No swap required
@@ -371,20 +349,29 @@ function mathExpressionEvaluator(expr = '') {
 }
 
 // Event handlers for everything else
-//
+// ----------------------------------
+
 // Handle swap values
 elements.swapValuesDocument.addEventListener('click', function(e) {
-  swapValues(
-    elements.documentWidthInput,
-    elements.documentHeightInput
-  );
+  try {
+    swapValues(
+      elements.documentWidthInput,
+      elements.documentHeightInput
+    );
+  } catch (e) {
+    alert(e.message);
+  }
 });
 
 elements.swapValuesItem.addEventListener('click', function(e) {
-  swapValues(
-    elements.itemWidthInput,
-    elements.itemHeightInput
-  );
+  try {
+    swapValues(
+      elements.itemWidthInput,
+      elements.itemHeightInput
+    );
+  } catch (e) {
+    alert(e.message);
+  }
 });
 
 // Event listener for auto-selecting the value
